@@ -2,25 +2,19 @@ import { FC, useEffect, useState } from 'react';
 import { TextField } from '../../components';
 import { Button } from '../../components';
 import { WidgetLayout } from '../../components/layouts';
+import './loginPageStyles.scss';
+import { useNavigate } from 'react-router-dom';
+import { RoutesPaths } from '../../constants/commonConstants';
 
 
 export const LoginPage: FC = () => {
-    const { accessToken, role } = useAppSelector((state) => state.user);
-    const dispatch = useAppDispatch();
+    
 
     const [login, setLogin] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if(accessToken) {
-            if(role === 'user' || !role) {
-                navigate(`/${RoutesPaths.NoPermissions}`);
-            } else {
-                navigate(`/${RoutesPaths.Departments}`);
-            }
-        }
-    }, [accessToken, role, navigate]);
+    
 
     const loginChangedHandler = (value: string) => {
         setLogin(value);
@@ -31,12 +25,17 @@ export const LoginPage: FC = () => {
     };
 
     const loginHandler = () => {
-        dispatch(signIn({login, password}));
+        console.log({
+            login,
+            password
+        });
+        navigate(RoutesPaths.Departments)
+    }
+    const toRegistrationHandler = () => {
+        navigate(RoutesPaths.Registration)
     }
 
-    const toRegistrationHandler = () => {
-        navigate(RoutesPaths.Registration);
-    };
+    
 
     return (
         <WidgetLayout>
@@ -48,7 +47,7 @@ export const LoginPage: FC = () => {
                 </div>
                 <div className="login-page__actions">
                     <Button text="Войти" onClick={loginHandler} type="primary" />
-                    <Button text="Зарегистрироваться" onClick={toRegistrationHandler} type="secondary" />
+                    <Button text='Зарегестрироваться' onClick={toRegistrationHandler} type='secondary' />
                 </div>
             </div>
         </WidgetLayout>

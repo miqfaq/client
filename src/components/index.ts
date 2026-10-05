@@ -1,9 +1,3 @@
 export { Button } from './button';
-export { Dialog } from './dialog';
-export { DropDown } from './dropDown';
-export { EducationList } from './educationList';
-export { EmployeesList } from './employeesList';
-export { FilesList } from './filesList';
-export { TextField } from './textField';
-export { UserMenu } from './userMenu';
-export { WorkExperienceList } from './workExperienceList';
+export {TextField} from './textField';
+export {UserMenu} from './userMenu';
