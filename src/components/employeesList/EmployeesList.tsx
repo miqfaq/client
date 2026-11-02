@@ -5,12 +5,25 @@ import clsx from 'classnames';
 import { PencilIcon, TrashIcon } from "../../assets/icons";
 
 export const EmployeesList: FC<EmpoyeesListProps> = props =>{
-    const {employeesList, onItemClick} = props;
+    const {
+        employeesList,
+        onItemClick,
+        onItemDelete,
+        onItemEdit
+    } = props;
     const [selectedUser, setSelectedUser] = useState(0);
 
     const employeeClickHandler = (id: number) => {
         setSelectedUser(id);
         onItemClick && onItemClick(id);
+    }
+
+    const employeeEditHandler = (id:number) =>{
+        onItemEdit && onItemEdit(id);
+    }
+
+    const employeeDeleteHandler = (id:number) =>{
+        onItemDelete && onItemDelete(id);
     }
 
     const isSelected = (id: number) => selectedUser === id;
@@ -25,8 +38,8 @@ export const EmployeesList: FC<EmpoyeesListProps> = props =>{
                             {`${user.lastName} ${user.firstName} ${user.midleName ?? ''}`.trim()}
                         </div>
                         <div className="empl-list__item_actions">
-                            <PencilIcon width={18} height={18} />
-                            <TrashIcon width={18} height={18}/>
+                            <PencilIcon width={18} height={18} onClick={() => {employeeEditHandler(user.id)}}/>
+                            <TrashIcon width={18} height={18} onClick={() => {employeeDeleteHandler(user.id)}}/>
                         </div>
                 </div>
                 )
