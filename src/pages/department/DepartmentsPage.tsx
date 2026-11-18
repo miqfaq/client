@@ -1,16 +1,46 @@
 import { FC, useEffect, useState } from "react";
 import { Layout } from "../../components/layouts";
 import './departmentsPageStyles.scss';
-import { Button, Dialog, DropDown, EmployeesList, TextField } from "../../components";
+import { Button, Dialog, DropDown, EducationList, EmployeesList, TextField, WorkExperienceList } from "../../components";
 import { Department, Employee } from "../../types/models";
 import { DropDownItem } from "../../components/dropDown/DropDownProps";
+import { AddIcon, UploadIcon } from "../../assets/icons";
+import { format } from 'date-fns/format';
+import { FilesList } from "../../components";
 
 const fakeEmployeesData = [
   { id: 1, lastName: 'Иванов', firstName: 'Иван', midleName: 'Иванович', birthDate: new Date().toISOString(), email: 'ivanov@mail.ru', phoneNumber: '8-800-535-35-35' },
   { id: 2, lastName: 'Петров', firstName: 'Сергей', midleName: 'Дмитриевич', birthDate: new Date().toISOString(), email: 'petrov@mail.ru', phoneNumber: '8-800-535-35-36' },
   { id: 3, lastName: 'Джон', firstName: 'Смитт', birthDate: new Date().toISOString(), email: 'john@mail.ru', phoneNumber: '8-800-535-35-37' },
   { id: 4, lastName: 'Рябчикова', firstName: 'Лидия', midleName: 'Анатольевна', birthDate: new Date().toISOString(), email: 'ryaba@mail.ru', phoneNumber: '8-800-535-35-38' },
-  { id: 5, lastName: 'Семенов', firstName: 'Олег', midleName: 'Артемович', birthDate: new Date().toISOString(), email: 'semenov@mail.ru', phoneNumber: '8-800-535-35-39' }
+  { id: 5, lastName: 'Семенов', firstName: 'Олег', midleName: 'Артемович', birthDate: new Date().toISOString(), email: 'semenov@mail.ru', phoneNumber: '8-800-535-35-39',
+    educations: [{
+      id: 1,
+      description: 'Системный администратор',
+      title: 'ВГПТТ №36'
+    },{
+      id: 2,
+      description: 'Информационные системы и технологии',
+      title: 'ФГБОУ ВГПУ'
+    },{
+      id: 3,
+      description: 'Курсы повышения квалификации',
+      title: 'Яндекс практикум'
+    }],
+    workExperience: [{
+      id: 1,
+      workedYears: 3,
+      description: 'ООО "Техинформ сервис"'
+    },{
+      id: 2,
+      workedYears: 2,
+      description: 'Data art'
+    },{
+      id: 3,
+      workedYears: 4,
+      description: 'ООО "Рексофт"'
+    }]
+  },
 ] as Array<Employee>;
 
 const fakeDepartmentsData = [
@@ -29,12 +59,21 @@ export const DepartmentsPage: FC = ()=> {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [midName, setMidname] = useState('');
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState<number>();
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee>();
+
+    const [birthDate, setBirthDate] = useState('');
+    const [email, setEmail] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
 
     const clearEmployeeDialogFields =() =>{
+        setUserActionMode('create');
+        setUserToEdit(0);
         setLastName('');
         setFirstName('');
         setMidname('');
+        setBirthDate('');
+        setEmail('');
+        setPhoneNumber('');
     }
 
     useEffect(() => {
@@ -43,7 +82,7 @@ export const DepartmentsPage: FC = ()=> {
             if(Array.isArray(fakeDepartmentsData) && fakeDepartmentsData.length){
                 setEmployeesData(fakeDepartmentsData[0].employees)
             }
-        }, 500);
+        }, 2000);
     }, []);
 
     useEffect(() => {
@@ -58,12 +97,11 @@ export const DepartmentsPage: FC = ()=> {
     useEffect(() => {
         const selectedDepartment = departmentsData.find(d => d.id === selectedDepartmentId);
         setEmployeesData(selectedDepartment ? selectedDepartment.employees: []);
-        setSelectedEmployeeId(undefined);
+        setSelectedEmployee(undefined);
     }, [departmentsData, selectedDepartmentId])
 
 
     useEffect(() => {
-        clearEmployeeDialogFields()
         if (userActionMode === 'edit') {
             const employee = userActionMode === 'edit'
                 ? employeesData.find(e => e.id === userToEdit)
@@ -71,6 +109,10 @@ export const DepartmentsPage: FC = ()=> {
             setLastName(employee?.lastName ?? '');
             setFirstName(employee?.firstName ?? '');
             setMidname(employee?.midleName ?? '');
+
+            setBirthDate(employee?.birthDate ?? '');
+            setEmail(employee?.email ?? '');
+            setPhoneNumber(employee?.phoneNumber ?? '');
         }
 
     }, [employeesData, userActionMode, userToEdit])
@@ -96,6 +138,10 @@ export const DepartmentsPage: FC = ()=> {
                 <TextField labelText="Фамилия" value={lastName} onChange={(val) => setLastName(val)}/>
                 <TextField labelText="Имя" value={firstName} onChange={(val) => setFirstName(val)}/>
                 <TextField labelText="Отчество" value={midName} onChange={(val) => setMidname(val)}/>
+
+                <TextField labelText="Дата рождения" value={birthDate} onChange={(val) => setBirthDate(val)}/>
+                <TextField labelText="Email" value={email} onChange={(val) => setEmail(val)}/>
+                <TextField labelText="Телефон" value={phoneNumber} onChange={(val) => setPhoneNumber(val)}/>
             </>
         )
     }
@@ -111,8 +157,26 @@ export const DepartmentsPage: FC = ()=> {
     }
 
     const onEmployeeSelectedHandler = (id: number) => {
-        setSelectedEmployeeId(id);
+        const employee = employeesData.find(e => e.id === id);
+        setSelectedEmployee(employee);
     }
+
+    const getFIO = () =>{
+        if(!selectedEmployee) {
+            return '';
+        }
+        return `${selectedEmployee.lastName} ${selectedEmployee.firstName} ${selectedEmployee.midleName ?? ''}`.trim();
+    }
+    const uploadFileHandler = () => {
+
+    }
+    const downloadFileHandler = (id: number) =>{
+
+    }
+    const deleteFileHandler = (id: number) =>{
+
+    }
+
 
     return (
         <Layout>
@@ -141,25 +205,100 @@ export const DepartmentsPage: FC = ()=> {
                     />
                     <Button text="Добавить сотрудника" className="dep-page__add-user-btn" onClick={createEmployeeHandler}/>
                 </div>
-                <div>
-
-                <Dialog title={userActionMode !== 'edit' ? 'Добавить сотрудника': 'Изменить сотрудника'}
-                    open={showEmployeeDialog}
-                    onSave={() => {}}
-                    onCancel={() => {closeEmployeeDialogHandler()}}
-                    > 
-                    {userDialogContentRenderer()}
-                </Dialog>
-                    <div>
-                        <span>
-                            Фио
-                        </span>
-                        <div>*</div>
+                <div className="dep-page__user-info-container">
+                    <div className="dep-page__user-info-header">
+                        <div className="dep-page__use-info_user">
+                            <div className="dep-page__user-info-fullname">
+                                {getFIO()}
+                            </div>
+                            <div className="dep-page__user-info-pers-data">
+                                <div>
+                                    <strong>Дата рождения: </strong>
+                                    <span>
+                                        {selectedEmployee?.birthDate 
+                                        ? format(new Date(selectedEmployee.birthDate), 'dd.MM.yyyy')
+                                        : '-'
+                                    }</span>
+                                </div>
+                                <div>
+                                    <strong>Email: </strong>
+                                    <span>{selectedEmployee?.email ?? '-'}</span>
+                                </div>
+                                <div>
+                                    <strong>Телефон: </strong>
+                                    <span>{selectedEmployee?.phoneNumber ?? '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="dep-page__use-info-actions">
+                            <UploadIcon onClick={uploadFileHandler} color="#7a7a7a"/>
+                        </div>
                     </div>
-                    <div>
-                        <div>Личные данные</div>
-                        <div>Данные о работе</div>
+                    <div className="dep-page__user-add-info">
+                        <div className="dep-page__user-add-info-files">
+                            <span className="dep-page__label">
+                                Прикрепленные файлы:
+                            </span>
+                            <FilesList
+                            onFileDownload={downloadFileHandler}
+                            onFileDelete={deleteFileHandler}
+                            filesList ={[{
+                                id: 1,
+                                displayName: 'my_file.txt',
+                                systemName: 'sasasas'
+                            },
+                            {
+                                id: 2,
+                                displayName: 'my_file2.txt',
+                                systemName: 'asdasdasd'
+                            }]} />
+                        </div>
+                        <div className="dep-page__user-add-info-data">
+                            <div className="dep-page__user-add-info-data__cell">
+                                <div className="dep-page__list-title">
+                                    <span className="dep-page__label">
+                                        Данные об образовании:
+                                    </span>
+                                    <AddIcon width={16} height={16}/>
+                                </div>
+                                <EducationList educationList = {[
+                                    {
+                                        id: 1,
+                                        description: "Инжинер программист",
+                                        title: "Высшее образование"
+                                    },
+                                    {
+                                        id: 2,
+                                        description: "Системный администратор",
+                                        title: "Высшее образование"
+                                    }
+                                ]}
+                                    
+                                 />
+                            </div>
+                            <div className="dep-page__user-add-info-data__cell">
+                                <div className="dep-page__list-title">
+                                    <span className="dep-page__label">
+                                        Данные об образовании:
+                                    </span>
+                                    <AddIcon width={16} height={16}/>
+                                </div>
+                                <WorkExperienceList workExperienceList={[
+                                    {
+                                        id: 1,
+                                        workedYears: 3,
+                                        description: "ООО Рога и копыта"
+                                    },
+                                    {
+                                        id: 1,
+                                        workedYears: 3,
+                                        description: "ООО Рексофт"
+                                    }
+                                ]} />
+                            </div>
+                        </div>
                     </div>
+                
                 </div>
             </div>
         </Layout>
